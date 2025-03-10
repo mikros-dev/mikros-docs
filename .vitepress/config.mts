@@ -13,6 +13,7 @@ const vitePressConfig: UserConfig = {
   rewrites: {
     'en/:rest*': ':rest*'
   },
+  ignoreDeadLinks: true,
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }]
   ],

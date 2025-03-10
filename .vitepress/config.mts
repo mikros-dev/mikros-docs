@@ -13,7 +13,7 @@ const vitePressConfig: UserConfig = {
   rewrites: {
     'en/:rest*': ':rest*'
   },
-  base: '/mikros-docs/',
+  base: '/',
   ignoreDeadLinks: true,
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }]

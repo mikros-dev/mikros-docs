@@ -18,64 +18,16 @@ const vitePressConfig: UserConfig = {
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }]
   ],
-  // Configure locales
-  locales: {
-    root: {
-      label: 'English',
-      lang: 'en',
-      link: '/',
-      themeConfig: {
-        nav: [
-          { text: 'Home', link: '/' },
-          { text: 'Getting Started', link: '/getting_started/' },
-          { text: 'Guides', link: '/guides/service_toml' },
-          { 
-            text: 'Documentation', 
-            items: [
-              { text: 'Core Concepts', link: '/guides/concepts' },
-              { text: 'Architecture', link: '/guides/architecture' },
-              { text: 'Best Practices', link: '/guides/best_practices' }
-            ]
-          },
-          { text: 'API', link: '/api/' }
-        ]
-      }
-    },
-    pt: {
-      label: 'Português',
-      lang: 'pt',
-      link: '/pt/',
-      themeConfig: {
-        nav: [
-          { text: 'Início', link: '/pt/' },
-          { text: 'Primeiros Passos', link: '/pt/getting_started/' },
-          { text: 'Guias', link: '/pt/guides/service_toml' },
-          { 
-            text: 'Documentação', 
-            items: [
-              { text: 'Conceitos Básicos', link: '/pt/guides/concepts' },
-              { text: 'Arquitetura', link: '/pt/guides/architecture' },
-              { text: 'Melhores Práticas', link: '/pt/guides/best_practices' }
-            ]
-          },
-          { text: 'API', link: '/pt/api/' }
-        ]
-      }
-    }
-  },
-
   themeConfig: {
-    // Common theme config
+    logo: 'https://avatars.githubusercontent.com/u/146955355',
     socialLinks: [
       { icon: 'github', link: 'https://github.com/mikros-dev' },
-    ]
+    ],
   }
 }
 
 const rootLocale = 'en'
 const supportedLocales = [rootLocale, 'pt'];
-
-
 const commonSidebarConfigs: VitePressSidebarOptions = {
   capitalizeFirst: true,
   capitalizeEachWords: true,
@@ -92,14 +44,44 @@ const vitePressSidebarConfig: VitePressSidebarOptions[] =
     };
   })
 
-
-
 const vitePressI18nConfig: VitePressI18nOptions = {
-  locales: [
-    { path: '/', locale: 'en' },  // Empty path for the root locale
-    { path: 'pt', locale: 'pt' }
-  ],
-  rootLocale: 'en',
+  locales: supportedLocales,
+  rootLocale: rootLocale,
+  searchProvider: 'local',
+  themeConfig: {
+    en: {
+      nav: [
+        { text: 'Home', link: '/' },
+        { text: 'Getting Started', link: '/getting_started/' },
+        { text: 'Guides', link: '/guides/service_toml' },
+        {
+          text: 'Documentation',
+          items: [
+            { text: 'Core Concepts', link: '/guides/concepts' },
+            { text: 'Architecture', link: '/guides/architecture' },
+            { text: 'Best Practices', link: '/guides/best_practices' }
+          ]
+        },
+        { text: 'API', link: '/api/' }
+      ],
+    },
+    pt: {
+      nav: [
+        { text: 'Início', link: '/pt/' },
+        { text: 'Primeiros Passos', link: '/pt/getting_started/' },
+        { text: 'Guias', link: '/pt/guides/service_toml' },
+        {
+          text: 'Documentação',
+          items: [
+            { text: 'Conceitos Básicos', link: '/pt/guides/concepts' },
+            { text: 'Arquitetura', link: '/pt/guides/architecture' },
+            { text: 'Melhores Práticas', link: '/pt/guides/best_practices' }
+          ]
+        },
+        { text: 'API', link: '/pt/api/' }
+      ],
+    }
+  }
 };
 
 

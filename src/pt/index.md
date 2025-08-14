@@ -27,9 +27,6 @@ features:
   - icon: 🔒
     title: Segurança Integrada
     details: Comunicação segura entre serviços com autenticação e criptografia integradas.
-  - icon: 🔄
-    title: Balanceamento de Carga
-    details: Balanceamento de carga inteligente garante utilização ideal de recursos e alta disponibilidade.
   - icon: 📊
     title: Monitoramento e Observabilidade
     details: Ferramentas abrangentes de monitoramento fornecem insights sobre seu ecossistema de microsserviços.

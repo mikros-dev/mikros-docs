@@ -1,91 +1,80 @@
-import { defineConfig, type UserConfig } from 'vitepress'
-import { withSidebar } from 'vitepress-sidebar';
-import { type VitePressSidebarOptions } from 'vitepress-sidebar/types';
-import { withI18n } from 'vitepress-i18n';
-import { type VitePressI18nOptions } from 'vitepress-i18n/types';
+import { defineConfig } from 'vitepress'
 
-// Base VitePress configuration
-const vitePressConfig: UserConfig = {
+const isProd = process.env.NODE_ENV === 'production'
+
+export default defineConfig({
+  srcDir: 'src',
+  base: isProd ? '/mikros-docs/' : '/',
+
+  lang: 'en-US',
   title: 'Mikros',
-  description: 'Mikros docs',
-  srcDir: './src',
-  assetsDir: './public',
-  rewrites: {
-    'en/:rest*': ':rest*'
-  },
-  base: '/',
-  ignoreDeadLinks: true,
-  head: [
-    ['link', { rel: 'icon', href: '/favicon.ico' }]
-  ],
+  description: 'An opinionated framework for Go and Rust services',
+
   themeConfig: {
     logo: 'https://avatars.githubusercontent.com/u/146955355',
+    nav: [
+      { text: 'Guide', link: '/guide/' },
+      { text: 'Go', link: '/go/' },
+      { text: 'Rust', link: '/rust/' },
+      { text: 'Protobuf', link: '/protobuf/' },
+      { text: 'CLI', link: '/cli/' },
+      { text: 'Contribute', link: '/contribute/' },
+      {
+        text: 'API',
+        items: [
+          { text: 'Go (pkg.go.dev)', link: 'https://pkg.go.dev/github.com/mikros-dev/mikros' },
+          { text: 'Rust (docs.rs)', link: 'https://docs.rs/mikros' },
+        ]
+      }
+    ],
+    sidebar: {
+      '/guide/': [
+        { text: 'What is Mikros', link: '/guide/' },
+        { text: 'Service definitions', link: '/guide/service-toml' },
+        { text: 'Lifecycle', link: '/guide/lifecycle' },
+        { text: 'Extending', link: '/guide/extending' },
+      ],
+      '/go/': [
+        { text: 'Quickstart', link: '/go/quickstart' },
+        { text: 'Features', link: '/go/features' },
+        { text: 'New service type', link: '/go/new-service-type' },
+        { text: 'Testing', link: '/go/testing' },
+        { text: 'Examples', link: '/go/examples' },
+        { text: 'Reference (pkg.go.dev)', link: 'https://pkg.go.dev/github.com/mikros-dev/mikros' },
+        { text: 'Roadmap', link: '/go/roadmap' },
+      ],
+      '/rust/': [
+        { text: 'Quickstart', link: '/rust/quickstart' },
+        { text: 'Macros', link: '/rust/macros' },
+        { text: 'Features', link: '/rust/features' },
+        { text: 'New service type', link: '/rust/new-service-type' },
+        { text: 'Examples', link: '/rust/examples' },
+        { text: 'Reference (docs.rs)', link: 'https://docs.rs/mikros' },
+        { text: 'Roadmap', link: '/rust/roadmap' },
+      ],
+      '/protobuf': [
+        { text: 'Extensions', link: '/protobuf/extensions' },
+        { text: 'OpenAPI', link: '/protobuf/openapi' },
+      ],
+      '/contribute/': [
+        { text: 'How to contribute', link: '/contribute/' },
+      ]
+    },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/mikros-dev' },
     ],
-  }
-}
-
-const rootLocale = 'en'
-const supportedLocales = [rootLocale, 'pt'];
-const commonSidebarConfigs: VitePressSidebarOptions = {
-  capitalizeFirst: true,
-  capitalizeEachWords: true,
-  underscoreToSpace: true,
-}
-
-const vitePressSidebarConfig: VitePressSidebarOptions[] =
-  supportedLocales.map((lang) => {
-    return {
-      ...commonSidebarConfigs,
-      ...(rootLocale === lang ? {} : { basePath: `/${lang}/` }),
-      documentRootPath: `src/${lang}`,
-      resolvePath: rootLocale === lang ? '/' : `/${lang}/`,
-    };
-  })
-
-const vitePressI18nConfig: VitePressI18nOptions = {
-  locales: supportedLocales,
-  rootLocale: rootLocale,
-  searchProvider: 'local',
-  themeConfig: {
-    en: {
-      nav: [
-        { text: 'Home', link: '/' },
-        { text: 'Getting Started', link: '/getting_started/' },
-        { text: 'Guides', link: '/guides/service_toml' },
-        {
-          text: 'Documentation',
-          items: [
-            { text: 'Core Concepts', link: '/guides/concepts' },
-            { text: 'Architecture', link: '/guides/architecture' },
-            { text: 'Best Practices', link: '/guides/best_practices' }
-          ]
-        },
-        { text: 'API', link: '/api/' }
-      ],
+    editLink: {
+      pattern: 'https://github.com/mikros-dev/mikros-docs/edit/main/src/:path',
+      text: 'Edit this page on GitHub'
     },
-    pt: {
-      nav: [
-        { text: 'Início', link: '/pt/' },
-        { text: 'Primeiros Passos', link: '/pt/getting_started/' },
-        { text: 'Guias', link: '/pt/guides/service_toml' },
-        {
-          text: 'Documentação',
-          items: [
-            { text: 'Conceitos Básicos', link: '/pt/guides/concepts' },
-            { text: 'Arquitetura', link: '/pt/guides/architecture' },
-            { text: 'Melhores Práticas', link: '/pt/guides/best_practices' }
-          ]
-        },
-        { text: 'API', link: '/pt/api/' }
-      ],
-    }
-  }
-};
-
-
-// https://vitepress.dev/reference/site-config
-export default defineConfig(
-  withSidebar(withI18n(vitePressConfig, vitePressI18nConfig), vitePressSidebarConfig)
-);
+    footer: {
+      message: 'Mikros is MIT/MPL-2.0 licensed',
+      copyright: '© Mikros'
+    },
+    outline: [2,3]
+  },
+  head: [
+    ['meta', { name: 'theme-color', content: '#0b0f19' }],
+    ['link', { rel: 'icon', href: '/favicon.svg' }]
+  ],
+})

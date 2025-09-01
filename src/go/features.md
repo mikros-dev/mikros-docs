@@ -296,7 +296,9 @@ var _ plugin.FeatureSettings = (*HelloFeature)(nil)
 var _ plugin.FeatureExternalAPI = (*HelloFeature)(nil)
 
 // New returns a new HelloFeature (disabled until UpdateInfo runs).
-func New() *HelloFeature { return &HelloFeature{} }
+func New() *HelloFeature { 
+    return &HelloFeature{}
+}
 
 // --- plugin.Feature ---
 

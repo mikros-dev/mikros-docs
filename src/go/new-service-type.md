@@ -235,6 +235,7 @@ func (s *Service) Initialize(ctx context.Context, opt *plugin.ServiceOptions) er
         logger.Any("times", len(s.defs.ScheduledTimes)),
         logger.Any("days", len(s.defs.Days)),
     )
+
     return nil
 }
 

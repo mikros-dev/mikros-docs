@@ -16,16 +16,14 @@ export default defineConfig({
       { text: 'Guide', link: '/guide/' },
       { text: 'Go', link: '/go/' },
       { text: 'Rust', link: '/rust/' },
-      { text: 'Protobuf', link: '/protobuf/' },
-      { text: 'CLI', link: '/cli/' },
-      { text: 'Contribute', link: '/contribute/' },
       {
-        text: 'API',
+        text: 'Tools',
         items: [
-          { text: 'Go (pkg.go.dev)', link: 'https://pkg.go.dev/github.com/mikros-dev/mikros' },
-          { text: 'Rust (docs.rs)', link: 'https://docs.rs/mikros' },
+          { text: 'CLI', link: '/cli/' },
+          { text: 'Protobuf', link: '/protobuf/' },
         ]
-      }
+      },
+      { text: 'Contribute', link: '/contribute/' }
     ],
     sidebar: {
       '/guide/': [
@@ -41,18 +39,18 @@ export default defineConfig({
         { text: 'New service type', link: '/go/new-service-type' },
         { text: 'Testing', link: '/go/testing' },
         { text: 'Examples', link: '/go/examples' },
-        { text: 'Reference (pkg.go.dev)', link: 'https://pkg.go.dev/github.com/mikros-dev/mikros' },
         { text: 'Roadmap', link: '/go/roadmap' },
+        { text: 'Reference (pkg.go.dev)', link: 'https://pkg.go.dev/github.com/mikros-dev/mikros' },
       ],
       '/rust/': [
         { text: 'Quickstart', link: '/rust/quickstart' },
         { text: 'Overview', link: '/go/overview' },
-        { text: 'Macros', link: '/rust/macros' },
         { text: 'Features', link: '/rust/features' },
         { text: 'New service type', link: '/rust/new-service-type' },
+        { text: 'Macros', link: '/rust/macros' },
         { text: 'Examples', link: '/rust/examples' },
-        { text: 'Reference (docs.rs)', link: 'https://docs.rs/mikros' },
         { text: 'Roadmap', link: '/rust/roadmap' },
+        { text: 'Reference (docs.rs)', link: 'https://docs.rs/mikros' },
       ],
       '/protobuf': [
         { text: 'Extensions', link: '/protobuf/extensions' },

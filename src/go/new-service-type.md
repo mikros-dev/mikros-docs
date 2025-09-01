@@ -9,7 +9,6 @@ gracefully.
 
 This page explains the process and provides a minimal, production-quality example.
 
-
 ## What it means to add a service type
 
 A custom service kind is a Go type that implements the `plugin.Service` interface

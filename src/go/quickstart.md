@@ -22,7 +22,7 @@ go mod init quickstart-example
 Create `service.toml` file in the project root:
 
 ```toml
-name = "native-example"
+name = "quickstart-example"
 types = ["native"]
 version = "v1.0.0"
 language = "go"

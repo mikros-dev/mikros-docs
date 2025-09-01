@@ -1,10 +1,10 @@
 # Features
 
 Mikros features are modular, reusable units of cross-cutting behavior—logging,
-error handling, env validation, and more. They integrate cleanly into the service
+error handling, env validation and more. They integrate cleanly into the service
 lifecycle without bloating your business code.
 
-##  Built-in Features
+## Built-in Features
 
 Mikros ships with several default features designed to cover common concerns. They
 are already ready to use, i.e., don't need to be enabled in `service.toml`
@@ -15,14 +15,14 @@ are already ready to use, i.e., don't need to be enabled in `service.toml`
 - **http** – Provides methods to interact with the current HTTP response within a request handler.
 - **definition** – Provides access to service metadata loaded from the `service.toml` file.
 
-##  Why Use Features
+## Why Use Features
 
 - **Decoupled concerns** — Enable only what you need, keeping your service lean.
 - **Safe defaults** — Disabled by default; features only activate when explicitly opted in.
 - **Lifecycle-aware** — Features attach at the right phase: during Build, wrap Start/Run, and clean up during Shutdown.
 - **Uniform APIs** — Logger and Error APIs are consistent across all services, improving onboarding and maintenance.
 
-##  Using Features in your Service
+## Using Features in your Service
 
 You can inject the feature into your `Service` struct using the
 `mikros:"feature"` tag:
@@ -76,7 +76,7 @@ type Feature interface {
     Initialize(ctx context.Context, options *InitializeOptions) error
 
     // Informative fields to be logged at startup.
-    Fields() []flogger.Attribute
+    Fields() []logger.Attribute
 
     // Provides name, enabled state, and internal info.
     FeatureEntry
@@ -93,9 +93,13 @@ type FeatureEntry interface {
 }
 ```
 
-> Mikros provides a ready-to-use plugin.Entry struct that implements FeatureEntry.
+> Mikros provides a ready-to-use **plugin.Entry** struct that implements **FeatureEntry**.
 > Embedding it into your feature struct is the recommended way to get logging,
 > error helpers, and state management "for free."
+
+All custom feature must be registered inside mikros at runtime to be available
+for usage. To do so, the API `WithExternalFeatures` from `Service` must be called
+with the proper set of custom features to register.
 
 ### Example service.toml
 
@@ -162,23 +166,22 @@ type FeatureSettings interface {
 
 #### `FeatureExternalAPI`
 
-Integrate with Mikros’ test harness.
-
-* **Why:** flip internal knobs for tests, set up fakes/mocks, and run feature-specific checks.
-* **Lifecycle in tests:** `Setup(ctx, t)` → test runs → `Teardown(ctx, t)`. Use `DoTest` for feature-owned assertions.
-* **Tip:** keep test state isolated; reset everything in `Teardown`.
-
 Expose a **typed API** for services to consume (e.g., `GreeterAPI`, `CacheAPI`).
 
 * **Why:** make feature capabilities available to handlers without leaking implementation.
 * **Lifecycle:** Mikros calls `ServiceAPI()` after `Initialize`; injected into service fields annotated with `mikros:"feature"`. 
-* **Tip:** keep APIs small and stable; prefer interfaces over concrete structs.
 
 ```go
 type FeatureExternalAPI interface {
     ServiceAPI() interface{}
 }
 ```
+
+* **Tip:** keep APIs small and stable; prefer interfaces over concrete structs,
+implement it over the feature object itself.
+
+> The API returned by `ServiceAPI()` must always point to a valid value (non nil)
+> so mikros can properly initialize the feature.
 
 #### `FeatureInternalAPI`
 
@@ -198,7 +201,7 @@ type FeatureInternalAPI interface {
 Integrate with Mikros’ test harness.
 
 * **Why:** flip internal knobs for tests, set up fakes/mocks, and run feature-specific checks.
-* **Lifecycle in tests:** Setup(ctx, t) → test runs → Teardown(ctx, t). Use DoTest for feature-owned assertions.
+* **Lifecycle in tests:** `Setup(ctx, t)` → test runs → `Teardown(ctx, t)`. Use `DoTest` for feature-owned assertions.
 * **Tip:** keep test state isolated; reset everything in Teardown.
 
 ```go
@@ -244,10 +247,11 @@ import (
     "context"
     "strings"
 
-    fenv "github.com/mikros-dev/mikros/apis/features/env"
-    ferrors "github.com/mikros-dev/mikros/apis/features/errors"
-    flogger "github.com/mikros-dev/mikros/apis/features/logger"
+    "github.com/mikros-dev/mikros/apis/features/env"
+    merrors "github.com/mikros-dev/mikros/apis/features/errors"
+    logger_api "github.com/mikros-dev/mikros/apis/features/logger"
     "github.com/mikros-dev/mikros/components/definition"
+    "github.com/mikros-dev/mikros/components/logger"
     "github.com/mikros-dev/mikros/components/plugin"
 )
 
@@ -258,9 +262,17 @@ type GreeterAPI interface {
 
 // cfg holds the feature settings loaded from [features.hello] in service.toml.
 type cfg struct {
-    Enabled   bool   `toml:"enabled"`
+	IsEnabled bool   `toml:"enabled"`
     Prefix    string `toml:"prefix"`
     Uppercase bool   `toml:"uppercase"`
+}
+
+func (c *cfg) Enabled() bool {
+	return c.IsEnabled
+}
+
+func (c *cfg) Validate() error {
+	return nil
 }
 
 func (c *cfg) defaults() {
@@ -272,11 +284,10 @@ func (c *cfg) defaults() {
 // HelloFeature implements plugin.Feature and exposes GreeterAPI.
 type HelloFeature struct {
     plugin.Entry              // embeds FeatureEntry: Name/IsEnabled/Error helpers
-    log    flogger.LoggerAPI
-    errs   ferrors.ErrorAPI
-    env    fenv.EnvAPI
+    log    logger_api.LoggerAPI
+    errs   merrors.ErrorAPI
+    env    env.EnvAPI
     conf   cfg
-    api    GreeterAPI
 }
 
 // Ensure interface compliance.
@@ -291,7 +302,7 @@ func New() *HelloFeature { return &HelloFeature{} }
 
 func (h *HelloFeature) CanBeInitialized(_ *plugin.CanBeInitializedOptions) bool {
     // If disabled in service.toml, Mikros will not Initialize() it.
-    return h.IsEnabled()
+    return h.conf.Enabled()
 }
 
 func (h *HelloFeature) Initialize(ctx context.Context, opt *plugin.InitializeOptions) error {
@@ -300,51 +311,71 @@ func (h *HelloFeature) Initialize(ctx context.Context, opt *plugin.InitializeOpt
     h.env = opt.Env
 
     h.conf.defaults()
-    h.api = &greeter{
-        prefix:    h.conf.Prefix,
-        uppercase: h.conf.Uppercase,
-    }
-
     h.log.Info(ctx, "hello feature initialized",
-        flogger.String("feature", h.Name()),
-        flogger.String("prefix", h.conf.Prefix),
-        flogger.Bool("uppercase", h.conf.Uppercase),
+        logger.String("feature", h.Name()),
+        logger.String("prefix", h.conf.Prefix),
+        logger.Any("uppercase", h.conf.Uppercase),
     )
+
     return nil
 }
 
-func (h *HelloFeature) Fields() []flogger.Attribute {
-    return []flogger.Attribute{
-        flogger.String("feature", "hello"),
-        flogger.Bool("enabled", h.IsEnabled()),
+func (h *HelloFeature) Fields() []logger_api.Attribute {
+    return []logger_api.Attribute{
+        logger.String("feature", "hello"),
+        logger.Any("enabled", h.IsEnabled()),
     }
 }
 
 // --- plugin.FeatureSettings ---
-// Load [features.hello] into our cfg struct. Mikros will call this before Initialize().
+// Load [features.hello] into our cfg struct. Mikros will call this before
+// Initialize().
 func (h *HelloFeature) Definitions(path string) (definition.ExternalFeatureEntry, error) {
     // The framework will decode [features.hello] into this struct.
+	type definitions struct {
+		Features struct {
+			Config cfg `toml:"hello"`
+		} `toml:"features"`
+	}
+
+	var defs definitions
+	if err := definition.ParseExternalDefinitions(path, &defs); err != nil {
+        return nil, err
+    }
+
+	h.conf = defs.Features.Config
     return &h.conf, nil
 }
 
 // --- plugin.FeatureExternalAPI ---
 // Expose a typed API that services can consume via feature injection.
-func (h *HelloFeature) ServiceAPI() interface{} { return h.api }
-
-// greeter implements GreeterAPI.
-type greeter struct {
-    prefix    string
-    uppercase bool
+func (h *HelloFeature) ServiceAPI() interface{} {
+	return h
 }
 
-func (g *greeter) Greet(_ context.Context, name string) string {
-    msg := g.prefix + name
-    if g.uppercase {
+// implements GreeterAPI.
+func (h *HelloFeature) Greet(_ context.Context, name string) string {
+	if !h.IsEnabled() {
+		return ""
+	}
+
+    msg := h.conf.Prefix + name
+    if h.conf.Uppercase {
         msg = strings.ToUpper(msg)
     }
-    return msg
+
+	return msg
+}
+
+// Feature returns a set containing the custom feature to be registered inside
+// mikros.
+func Feature() *plugin.FeatureSet {
+    features := plugin.NewFeatureSet()
+	features.Register("hello", New())
+    return features
 }
 ```
+
 
 ### Using the feature in a service
 
@@ -356,19 +387,27 @@ package myservice
 import (
     "context"
 
-    flogger "github.com/mikros-dev/mikros/apis/features/logger"
+    "github.com/mikros-dev/mikros/apis/features/logger"
     "github.com/your-org/your-repo/hello" // import your feature package
 )
 
 type Service struct {
-    Logger  flogger.LoggerAPI `mikros:"feature"`
+    Logger  logger.LoggerAPI `mikros:"feature"`
     Greeter hello.GreeterAPI  `mikros:"feature"` // resolved from HelloFeature.ServiceAPI()
 }
 
 func (s *Service) Handle(ctx context.Context, user string) {
     s.Logger.Info(ctx, "handling request")
     msg := s.Greeter.Greet(ctx, user)
-    s.Logger.Info(ctx, "greeted user", flogger.String("message", msg))
+    s.Logger.Info(ctx, "greeted user", logger.String("message", msg))
+}
+
+func main() {
+    svc := mikros.NewService(&options.NewServiceOptions{
+        // Do service initialization here...
+    }).WithExternalFeatures(hello.Feature()) // Register our feature
+
+    svc.Start(&service{})
 }
 ```
 

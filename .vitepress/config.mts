@@ -36,6 +36,7 @@ export default defineConfig({
       ],
       '/go/': [
         { text: 'Quickstart', link: '/go/quickstart' },
+        { text: 'Overview', link: '/go/overview' },
         { text: 'Features', link: '/go/features' },
         { text: 'New service type', link: '/go/new-service-type' },
         { text: 'Testing', link: '/go/testing' },
@@ -45,6 +46,7 @@ export default defineConfig({
       ],
       '/rust/': [
         { text: 'Quickstart', link: '/rust/quickstart' },
+        { text: 'Overview', link: '/go/overview' },
         { text: 'Macros', link: '/rust/macros' },
         { text: 'Features', link: '/rust/features' },
         { text: 'New service type', link: '/rust/new-service-type' },

@@ -27,7 +27,7 @@ name     = "alert"
 types    = [ "grpc" ]
 version  = "0.1.0"
 language = "go"
-product  = "SDS"
+product  = "BASE"
 ```
 
 > Note: For grpc and http types, mikros supports port biding (http:8080)

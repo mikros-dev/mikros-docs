@@ -6,7 +6,7 @@
     "lib": ["ESNext"],
     "strict": true,
     "noEmit": true,
-    "types": ["node"]      // <-- this enables `process` types
+    "types": ["node"]
   },
   "include": [
     ".vitepress/**/*.ts",

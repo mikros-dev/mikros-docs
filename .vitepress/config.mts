@@ -1,8 +1,8 @@
 import { defineConfig } from 'vitepress'
 
 // Uncomment for local tests
-//const BASE = '/'
-const BASE = `/mikros-docs/`
+const BASE = '/'
+//const BASE = `/mikros-docs/`
 
 export default defineConfig({
   srcDir: 'src',

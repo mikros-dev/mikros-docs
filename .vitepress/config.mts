@@ -1,10 +1,12 @@
 import { defineConfig } from 'vitepress'
 
-const isProd = process.env.NODE_ENV === 'production'
+// Uncomment for local tests
+//const BASE = '/'
+const BASE = `/mikros-docs/`
 
 export default defineConfig({
   srcDir: 'src',
-  base: isProd ? '/mikros-docs/' : '/',
+  base: BASE,
 
   lang: 'en-US',
   title: 'Mikros',
@@ -44,7 +46,7 @@ export default defineConfig({
       ],
       '/rust/': [
         { text: 'Quickstart', link: '/rust/quickstart' },
-        { text: 'Overview', link: '/go/overview' },
+        { text: 'Overview', link: '/rust/overview' },
         { text: 'Features', link: '/rust/features' },
         { text: 'New service type', link: '/rust/new-service-type' },
         { text: 'Macros', link: '/rust/macros' },
@@ -52,7 +54,7 @@ export default defineConfig({
         { text: 'Roadmap', link: '/rust/roadmap' },
         { text: 'Reference (docs.rs)', link: 'https://docs.rs/mikros' },
       ],
-      '/protobuf': [
+      '/protobuf/': [
         { text: 'Extensions', link: '/protobuf/extensions' },
         { text: 'OpenAPI', link: '/protobuf/openapi' },
       ],
@@ -75,6 +77,6 @@ export default defineConfig({
   },
   head: [
     ['meta', { name: 'theme-color', content: '#0b0f19' }],
-    ['link', { rel: 'icon', href: '/favicon.svg' }]
+    ['link', { rel: 'icon', href: 'favicon.svg' }]
   ],
 })
